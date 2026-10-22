@@ -7,8 +7,7 @@ const authMiddleware = require("../middleware/AuthMiddleware");
 
 const { runUserAiAgent } = require("../agents/userAiAgent");
 
-require("../config/firebaseAdmin");
-const { getAuth } = require("firebase-admin/auth");
+const getFirebaseAuth = require("../config/firebaseAdmin");
 
 
 
@@ -181,7 +180,7 @@ userRouter.post("/google-login", async (req, res) => {
   try {
     const { token } = req.body;
 
-    const decodedToken = await getAuth().verifyIdToken(token);
+    const decodedToken = await getFirebaseAuth().verifyIdToken(token);
 
     let user = await userModel.findOne({
       email: decodedToken.email,

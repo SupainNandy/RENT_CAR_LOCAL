@@ -48,8 +48,6 @@ async function authUser(req, res, next) {
   try {
     const authorizationHeader = req.headers.authorization;
 
-    console.log("AUTH HEADER:", authorizationHeader);
-
     if (!authorizationHeader) {
       return res.status(401).json({
         message: "Authorization header is missing",
@@ -64,9 +62,6 @@ async function authUser(req, res, next) {
 
     const token = authorizationHeader.split(" ")[1];
 
-    console.log("TOKEN:", token);
-    console.log("JWT SECRET EXISTS:", !!process.env.JWT_SECRET);
-
     if (!token || token === "null" || token === "undefined") {
       return res.status(401).json({
         message: "Token is missing",
@@ -74,8 +69,6 @@ async function authUser(req, res, next) {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    console.log("DECODED USER:", decoded);
 
     if (decoded.role !== "user") {
       return res.status(403).json({

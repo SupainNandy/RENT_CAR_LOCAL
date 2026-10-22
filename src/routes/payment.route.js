@@ -1,21 +1,12 @@
 const express = require("express");
-const Razorpay = require("razorpay");
 const crypto = require("crypto");
 
 const PaymentModel = require("../module/payment.model");
 const bookingModel = require("../module/booking.model");
 const sendPaymentReceipt = require("../utils/sendPaymentReceipt");
+const { getRazorpay, getRazorpayKeySecret } = require("../config/razorpay");
 
 const paymentRouter = express.Router();
-
-// Keep the same key/secret for creating the order and verifying payment.
-const RAZORPAY_KEY_ID = "rzp_test_T7hm9BL1wPK6Jd";
-const RAZORPAY_KEY_SECRET = "t6YTkB02N3foZoSQRXb021ku";
-
-const razorpay = new Razorpay({
-  key_id: RAZORPAY_KEY_ID,
-  key_secret: RAZORPAY_KEY_SECRET,
-});
 
 // CREATE RAZORPAY ORDER
 paymentRouter.post("/create-order", async (req, res) => {
@@ -29,7 +20,7 @@ paymentRouter.post("/create-order", async (req, res) => {
       });
     }
 
-    const order = await razorpay.orders.create({
+    const order = await getRazorpay().orders.create({
       amount: Math.round(Number(amount) * 100), // convert into paise (rupee * 100)
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
@@ -73,7 +64,7 @@ paymentRouter.post("/verify", async (req, res) => {
     }
 
     const generatedSignature = crypto
-      .createHmac("sha256", RAZORPAY_KEY_SECRET)
+      .createHmac("sha256", getRazorpayKeySecret())
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
